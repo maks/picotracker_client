@@ -6,6 +6,7 @@ import 'package:flutter_libserialport/flutter_libserialport.dart';
 
 void main() {
   runApp(const MyApp());
+  SerialPort('/dev/ttyACM0').close();
 }
 
 class MyApp extends StatelessWidget {
@@ -39,11 +40,26 @@ final KEY_RIGHT = int.parse("100", radix: 2);
 final KEY_UP = int.parse("1000", radix: 2);
 final KEY_L = int.parse("10000", radix: 2);
 
+class ScreenCharGrid {
+  final ByteData _charBytes = Uint8List(32 * 24).buffer.asByteData();
+
+  ByteData get data => _charBytes;
+
+  int getChar(int x, int y) {
+    return _charBytes.getUint8((y * 32) + x);
+  }
+
+  void setChar(int x, int y, int char) {
+    _charBytes.setUint8((y * 32) + x, char);
+  }
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   var availablePorts = <String>[];
   int keymask = 0;
   StreamSubscription? subscription;
   SerialPort? port;
+  final _grid = ScreenCharGrid();
 
   void _sendCmd(int c) {
     List<int> data = [c];
@@ -73,7 +89,21 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _listenPort() async {
     SerialPortReader reader = SerialPortReader(port!, timeout: 10000);
     subscription = reader.stream.listen((data) {
-      print('received : $data');
+      print('received:$data');
+      final byteBuf = data.buffer.asByteData();
+      //07 ascii is bell char
+      if (byteBuf.getUint8(0) == 9) {
+        for (int i = 0; i < byteBuf.lengthInBytes;) {
+          i++; //skip tab
+          final x = byteBuf.getUint8(i++);
+          final y = byteBuf.getUint8(i++);
+          final c = byteBuf.getUint8(i++);
+
+          print("char data: x:$x y:$y c:${String.fromCharCode(c)}");
+        }
+      } else {
+        print("usb:${String.fromCharCodes(data)}");
+      }
     });
   }
 
@@ -128,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: Text(widget.title),
         ),
-        body: Text("/dev/ttyACM0"),
+        body: PicoScreen(screendata: _grid.data),
         floatingActionButton: FloatingActionButton(
           onPressed: () => _sendCmd(65),
           tooltip: 'send',
@@ -136,5 +166,17 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+}
+
+class PicoScreen extends StatelessWidget {
+  final ByteData screendata;
+
+  PicoScreen({super.key, required this.screendata});
+
+  @override
+  Widget build(BuildContext context) {
+    for (int i = 0; i < 32; i++) {}
+    return Text("");
   }
 }

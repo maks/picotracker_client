@@ -48,7 +48,7 @@ final KEY_UP = int.parse("1000", radix: 2);
 final KEY_L = int.parse("10000", radix: 2);
 
 class ScreenCharGrid {
-  final ByteData _charBytes = Uint8List(COLS * ROWS).buffer.asByteData();
+  ByteData _charBytes = Uint8List(COLS * ROWS).buffer.asByteData();
 
   ByteData get data => _charBytes;
 
@@ -59,14 +59,35 @@ class ScreenCharGrid {
   void setChar(int x, int y, int char) {
     _charBytes.setUint8((y * COLS) + x, char);
   }
+
+  void clear() {
+    _charBytes = Uint8List(COLS * ROWS).buffer.asByteData();
+  }
+
+  List<String> getRows() {
+    final sb = StringBuffer();
+    final rows = List<String>.empty(growable: true);
+    for (int i = 0; i < _charBytes.lengthInBytes; i++) {
+      int c = _charBytes.getUint8(i);
+      sb.writeCharCode(c != 0 ? c : 32); // SPACE char in ascii 0
+      if (i % COLS == 0) {
+        rows.add(sb.toString());
+        print(sb);
+        sb.clear();
+      }
+    }
+    return rows;
+  } 
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   var availablePorts = <String>[];
   int keymask = 0;
   StreamSubscription? subscription;
+  StreamSubscription? cmdStreamSubscription;
   SerialPort? port;
   final _grid = ScreenCharGrid();
+  final cmdBuilder = CmdBuilder();  
 
   void _sendCmd(int c) {
     List<int> data = [c];
@@ -78,12 +99,26 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     initPorts();
+
+    cmdBuilder.commands.listen((cmd) {
+      setState(() {
+        switch (cmd) {
+          case DrawCmd():
+            _grid.setChar(cmd.x, cmd.y, cmd.char);
+            break;
+          case ClearCmd():
+            _grid.clear();
+            break;
+        }
+      });
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
     subscription?.cancel();
+    cmdStreamSubscription?.cancel();
   }
 
   void initPorts() {
@@ -94,27 +129,17 @@ class _MyHomePageState extends State<MyHomePage> {
     _listenPort();
     } catch (_) {
       print("NO Picotracker connected!");
-    }
-    
+    } 
   }
 
   Future<void> _listenPort() async {
-    SerialPortReader reader = SerialPortReader(port!, timeout: 10000);
+    SerialPortReader reader = SerialPortReader(port!, timeout: 10000);  
+
     subscription = reader.stream.listen((data) {
       print('received:$data');
-      final byteBuf = data.buffer.asByteData();
-      //07 ascii is bell char
-      if (byteBuf.getUint8(0) == 9) {
-        for (int i = 0; i < byteBuf.lengthInBytes;) {
-          i++; //skip tab
-          final x = byteBuf.getUint8(i++);
-          final y = byteBuf.getUint8(i++);
-          final c = byteBuf.getUint8(i++);
-
-          print("char data: x:$x y:$y c:${String.fromCharCode(c)}");
-        }
-      } else {
-        print("usb:${String.fromCharCodes(data)}");
+      final byteBuf = data.buffer.asByteData();      
+      for (int i = 0; i < byteBuf.lengthInBytes; i++) {
+        cmdBuilder.addByte(byteBuf.getUint8(i));
       }
     });
   }
@@ -171,7 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(widget.title),
         ),
         body: PicoScreen(
-          List<String>.filled(ROWS, "M" * 32),
+          _grid.getRows(),          
         ),
       ),
     );
@@ -215,4 +240,91 @@ class ScreenCharRow extends StatelessWidget {
           .toList(),
     );
   }
+}
+
+enum CommandType {
+  DRAW(3),
+  CLEAR(1);
+
+  const CommandType(this.byteCount);
+  final int byteCount;
+}
+
+class CmdBuilder {
+  CommandType? _type;
+  List<int> _byteBuffer = [];
+  final _commandStreamController = StreamController<Command>.broadcast();
+
+  Stream<Command> get commands => _commandStreamController.stream;
+
+  void addByte(int byte) {
+    if (_type == null) {
+      if (byte == 0xFD) {
+        _type = CommandType.DRAW;
+      }
+      if (byte == 0xFC) {
+        _type = CommandType.CLEAR;
+      }
+    } else if (_byteBuffer.length == _type!.byteCount) {
+      // ignore any further bytes once we have enough for the current cmd type
+      print("EXTRA:$byte");
+      return;
+    } else {
+      _byteBuffer.add(byte);
+    }
+
+    _build();
+  }
+
+  // build command if we have all the bytes for it
+  void _build() {
+    switch (_type) {
+      case CommandType.DRAW:
+        if (_byteBuffer.length == _type!.byteCount) {
+          final cmd = DrawCmd(
+              char: _byteBuffer[0],
+            // x & y co-ords are 1 indexed to avoid sending null chars in the serial data
+            x: _byteBuffer[1] - 1,
+            y: _byteBuffer[2] - 1,
+          );
+          _reset();
+          if (cmd.x > 31 || cmd.y > 23) {
+            print("BAD DATA: ${cmd.x} ${cmd.y} [${cmd.char}]");
+          } else {
+            _commandStreamController.add(cmd);
+          }          
+        }
+        break;
+      case CommandType.CLEAR:
+        if (_byteBuffer.length == _type!.byteCount) {
+          final cmd = ClearCmd(colour: _byteBuffer[0]);
+          _reset();
+          _commandStreamController.add(cmd);
+        }
+        break;
+      case null:
+        break;
+    }
+  }
+
+  void _reset() {
+    _byteBuffer = [];
+    _type = null;
+  }
+}
+
+abstract class Command {}
+
+class DrawCmd implements Command {
+  final int char;
+  final int x;
+  final int y;
+
+  DrawCmd({required this.char, required this.x, required this.y});
+}
+
+class ClearCmd implements Command {
+  final int colour;
+
+  ClearCmd({required this.colour});
 }

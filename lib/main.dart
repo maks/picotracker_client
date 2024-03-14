@@ -252,27 +252,26 @@ enum CommandType {
 
 class CmdBuilder {
   CommandType? _type;
-  List<int> _byteBuffer = [];
+  final List<int> _byteBuffer = [];
   final _commandStreamController = StreamController<Command>.broadcast();
 
   Stream<Command> get commands => _commandStreamController.stream;
 
   void addByte(int byte) {
-    if (_type == null) {
-      if (byte == 0xFD) {
+    switch (byte) {
+      case 0xFD:
+        _reset();
         _type = CommandType.DRAW;
-      }
-      if (byte == 0xFC) {
+        break;
+      case 0xFC:
+        _reset();
         _type = CommandType.CLEAR;
-      }
-    } else if (_byteBuffer.length == _type!.byteCount) {
-      // ignore any further bytes once we have enough for the current cmd type
-      print("EXTRA:$byte");
-      return;
-    } else {
-      _byteBuffer.add(byte);
-    }
-
+        break;
+      default:
+        if (_type != null && _byteBuffer.length != _type!.byteCount) {
+          _byteBuffer.add(byte);
+        } 
+    }    
     _build();
   }
 
@@ -284,10 +283,9 @@ class CmdBuilder {
           final cmd = DrawCmd(
               char: _byteBuffer[0],
             // x & y co-ords are 1 indexed to avoid sending null chars in the serial data
-            x: _byteBuffer[1] - 1,
-            y: _byteBuffer[2] - 1,
+            x: _byteBuffer[1],
+            y: _byteBuffer[2],
           );
-          _reset();
           if (cmd.x > 31 || cmd.y > 23) {
             print("BAD DATA: ${cmd.x} ${cmd.y} [${cmd.char}]");
           } else {
@@ -297,8 +295,7 @@ class CmdBuilder {
         break;
       case CommandType.CLEAR:
         if (_byteBuffer.length == _type!.byteCount) {
-          final cmd = ClearCmd(colour: _byteBuffer[0]);
-          _reset();
+          final cmd = ClearCmd(colour: _byteBuffer[0] - 1);
           _commandStreamController.add(cmd);
         }
         break;
@@ -308,7 +305,7 @@ class CmdBuilder {
   }
 
   void _reset() {
-    _byteBuffer = [];
+    _byteBuffer.clear();
     _type = null;
   }
 }

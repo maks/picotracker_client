@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -6,7 +8,11 @@ import 'package:flutter_libserialport/flutter_libserialport.dart';
 
 void main() {
   runApp(const MyApp());
-  SerialPort('/dev/ttyACM0').close();
+  try {
+    SerialPort('/dev/ttyACM0').close();
+  } catch (e) {
+    print("could not close serial port $e");
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -15,12 +21,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'picoTracker',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+          fontFamily: "VT323"
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'picoTracker'),
     );
   }
 }
@@ -41,16 +48,16 @@ final KEY_UP = int.parse("1000", radix: 2);
 final KEY_L = int.parse("10000", radix: 2);
 
 class ScreenCharGrid {
-  final ByteData _charBytes = Uint8List(32 * 24).buffer.asByteData();
+  final ByteData _charBytes = Uint8List(COLS * ROWS).buffer.asByteData();
 
   ByteData get data => _charBytes;
 
   int getChar(int x, int y) {
-    return _charBytes.getUint8((y * 32) + x);
+    return _charBytes.getUint8((y * COLS) + x);
   }
 
   void setChar(int x, int y, int char) {
-    _charBytes.setUint8((y * 32) + x, char);
+    _charBytes.setUint8((y * COLS) + x, char);
   }
 }
 
@@ -81,9 +88,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void initPorts() {
     setState(() => availablePorts = SerialPort.availablePorts);
-    port = SerialPort('/dev/ttyACM0');
+    try {
+      port = SerialPort('/dev/ttyACM0');
     port!.openReadWrite();
     _listenPort();
+    } catch (_) {
+      print("NO Picotracker connected!");
+    }
+    
   }
 
   Future<void> _listenPort() async {
@@ -158,25 +170,49 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: Text(widget.title),
         ),
-        body: PicoScreen(screendata: _grid.data),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _sendCmd(65),
-          tooltip: 'send',
-          child: const Icon(Icons.add),
+        body: PicoScreen(
+          List<String>.filled(ROWS, "M" * 32),
         ),
       ),
     );
   }
 }
 
-class PicoScreen extends StatelessWidget {
-  final ByteData screendata;
+const COLS = 32;
+const ROWS = 24;
 
-  PicoScreen({super.key, required this.screendata});
+class PicoScreen extends StatelessWidget {
+  final List<String> lines;
+
+  const PicoScreen(this.lines, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    for (int i = 0; i < 32; i++) {}
-    return Text("");
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: lines.map((l) => ScreenCharRow(l.characters.toList())).toList(),
+    );
+  }
+}
+
+class ScreenCharRow extends StatelessWidget {
+  final List<String> rowChars;
+
+  const ScreenCharRow(this.rowChars, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: rowChars
+          .map((c) => Text(
+                c,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      height: 0.75,
+                      letterSpacing: 4,
+                      fontSize: 32,
+                    ),
+              ))
+          .toList(),
+    );
   }
 }

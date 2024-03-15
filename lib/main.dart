@@ -51,10 +51,11 @@ final KEY_L = int.parse("10000", radix: 2);
 typedef Coord = ({int x, int y});
 
 class ScreenCharGrid {
-  ByteData _charBytes = Uint8List(COLS * ROWS).buffer.asByteData();
+  
   Color _currentColour = Colors.white;
   Color _backgroundColor = Colors.black;
-  List<Color> _colourGrid = List.filled(COLS * ROWS, Colors.black);
+  List<GridCell> _gridlist =
+      List.filled(COLS * ROWS, GridCell(0, Colors.black, false));
 
   final List<Color> colorPalette = [
     const Color(0xFF000000),
@@ -75,24 +76,18 @@ class ScreenCharGrid {
     const Color(0xFF00B6FD)
   ];
 
-  ByteData get data => _charBytes;
-
   Color get color => _currentColour;
 
   Color get background => _backgroundColor;
 
-  int getChar(Coord pos) {
-    return _charBytes.getUint8((pos.y * COLS) + pos.x);
-  }
-
-  void setChar(Coord pos, int char) {
+  void setChar(Coord pos, int char, bool invert) {
     final int offset = (pos.y * COLS) + pos.x;
-    _charBytes.setUint8(offset, char);
-    _colourGrid[offset] = _currentColour;
+    final nuCell = GridCell(char, _currentColour, invert);
+    _gridlist[offset] = nuCell;
   }
 
   void clear() {
-    _charBytes = Uint8List(COLS * ROWS).buffer.asByteData();
+    _gridlist = List.filled(COLS * ROWS, GridCell(0, _backgroundColor, false));
   }
 
   void setColor(int c) {
@@ -108,10 +103,9 @@ class ScreenCharGrid {
   List<List<GridCell>> getRows() {
     var currentRow = <GridCell>[];
     final rows = List<List<GridCell>>.empty(growable: true);
-    for (int i = 0; i < _charBytes.lengthInBytes; i++) {
-      final c = _charBytes.getUint8(i);
-      final color = _colourGrid[i];
-      currentRow.add(GridCell(c, color));
+    // split into rows
+    for (int i = 0; i < _gridlist.length; i++) {
+      currentRow.add(_gridlist[i]);
       if ((i + 1) % COLS == 0) {
         rows.add(currentRow);
         // print("ROW[$currentRow]\n");
@@ -146,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         switch (cmd) {
           case DrawCmd():
-            _grid.setChar((x: cmd.x, y: cmd.y), cmd.char);
+            _grid.setChar((x: cmd.x, y: cmd.y), cmd.char, cmd.invert);
             break;
           case ClearCmd():
             _grid.clear();
@@ -292,7 +286,9 @@ class ScreenCharRow extends StatelessWidget {
                       height: 0.75,
                       letterSpacing: 4,
                       fontSize: 32,
-                      color: cell.color,
+                      color: cell.invert ? grid.background : cell.color,
+                      backgroundColor:
+                          cell.invert ? cell.color : Colors.transparent,
                     ),
               ))
           .toList(),
@@ -423,11 +419,12 @@ class ColourCmd implements Command {
 class GridCell {
   final int _char;
   final Color color;
+  final bool invert;
 
   // SPACE char instead of ascii 0
   String get char => String.fromCharCode(_char != 0 ? _char : ASCII_SPACE);
 
-  GridCell(this._char, this.color);
+  GridCell(this._char, this.color, this.invert);
 
   @override
   String toString() {

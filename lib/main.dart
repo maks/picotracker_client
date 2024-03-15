@@ -69,8 +69,6 @@ class ScreenCharGrid {
   }
 
   void setColor(int c) {
-    // ignore: avoid_print
-    print("setcolor:$c");
     _currentColour = colorPalette[c];
   }
 

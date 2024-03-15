@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 
 void main() {
@@ -55,8 +56,15 @@ typedef Coord = ({int x, int y});
 
 class ScreenCharGrid {
   ByteData _charBytes = Uint8List(COLS * ROWS).buffer.asByteData();
+  Color _currentColour = Colors.white;
+  Color _backgroundColor = Colors.black;
+  List<Color> _colourGrid = List.filled(COLS * ROWS, Colors.black);
 
   ByteData get data => _charBytes;
+
+  Color get color => _currentColour;
+
+  Color get background => _backgroundColor;
 
   int getChar(Coord pos) {
     return _charBytes.getUint8((pos.y * COLS) + pos.x);
@@ -70,6 +78,13 @@ class ScreenCharGrid {
     _charBytes = Uint8List(COLS * ROWS).buffer.asByteData();
   }
 
+  void setColor(int c) {
+    _currentColour = Color(c);
+  }
+
+  void setBackground(int c) {
+    _backgroundColor = Color(c);
+  }
 
   List<String> getRows() {
     final sb = StringBuffer();
@@ -204,7 +219,8 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(widget.title),
         ),
         body: PicoScreen(
-          _grid.getRows(),          
+          _grid,
+          _grid.background,         
         ),
       ),
     );
@@ -215,23 +231,35 @@ const COLS = 32;
 const ROWS = 24;
 
 class PicoScreen extends StatelessWidget {
-  final List<String> lines;
+  final ScreenCharGrid grid;
+  final Color backgroundColor;
 
-  const PicoScreen(this.lines, {super.key});
+  const PicoScreen(this.grid, this.backgroundColor, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: lines.map((l) => ScreenCharRow(l.characters.toList())).toList(),
+    return Container(
+      color: backgroundColor,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: grid
+            .getRows()
+            .map((l) => ScreenCharRow(
+                  l.characters.toList(),
+                  grid.color,
+                ))
+            .toList(),
+      ),
     );
   }
 }
 
 class ScreenCharRow extends StatelessWidget {
   final List<String> rowChars;
+  final Color color;
 
-  const ScreenCharRow(this.rowChars, {super.key});
+  const ScreenCharRow(this.rowChars, this.color,
+      {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -243,6 +271,7 @@ class ScreenCharRow extends StatelessWidget {
                       height: 0.75,
                       letterSpacing: 4,
                       fontSize: 32,
+                      color: color,
                     ),
               ))
           .toList(),
@@ -251,7 +280,7 @@ class ScreenCharRow extends StatelessWidget {
 }
 
 enum CommandType {
-  DRAW(3),
+  DRAW(4),
   CLEAR(1),
   COLOUR(1);
 
@@ -307,6 +336,7 @@ class CmdBuilder {
             // x & y co-ords are 1 indexed to avoid sending null chars in the serial data
             x: _byteBuffer[1] - 32,
             y: _byteBuffer[2] - 32,
+            invert: _byteBuffer[3] == 127,
           );
           _reset();
           if (cmd.x > 31 || cmd.y > 23) {
@@ -348,8 +378,13 @@ class DrawCmd implements Command {
   final int char;
   final int x;
   final int y;
+  final bool invert;
 
-  DrawCmd({required this.char, required this.x, required this.y});
+  DrawCmd(
+      {required this.char,
+      required this.x,
+      required this.y,
+      required this.invert});
 }
 
 class ClearCmd implements Command {

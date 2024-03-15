@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 
 void main() {
@@ -16,7 +15,6 @@ void main() {
   }
 }
 
-
 const ASCII_SPACE = 32;
 
 class MyApp extends StatelessWidget {
@@ -27,10 +25,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'picoTracker',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-          fontFamily: "VT323"
-      ),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+          fontFamily: "VT323"),
       home: const MyHomePage(title: 'picoTracker'),
     );
   }
@@ -50,7 +47,6 @@ final KEY_DOWN = int.parse("10", radix: 2);
 final KEY_RIGHT = int.parse("100", radix: 2);
 final KEY_UP = int.parse("1000", radix: 2);
 final KEY_L = int.parse("10000", radix: 2);
-
 
 typedef Coord = ({int x, int y});
 
@@ -90,7 +86,9 @@ class ScreenCharGrid {
   }
 
   void setChar(Coord pos, int char) {
-    _charBytes.setUint8((pos.y * COLS) + pos.x, char);
+    final int offset = (pos.y * COLS) + pos.x;
+    _charBytes.setUint8(offset, char);
+    _colourGrid[offset] = _currentColour;
   }
 
   void clear() {
@@ -106,21 +104,22 @@ class ScreenCharGrid {
     _backgroundColor = Color(c);
   }
 
-  List<String> getRows() {
-    final sb = StringBuffer();
-    final rows = List<String>.empty(growable: true);
+
+  List<List<GridCell>> getRows() {
+    var currentRow = <GridCell>[];
+    final rows = List<List<GridCell>>.empty(growable: true);
     for (int i = 0; i < _charBytes.lengthInBytes; i++) {
-      int c = _charBytes.getUint8(i);
-      sb.writeCharCode(c != 0 ? c : ASCII_SPACE); // SPACE char in ascii 0
+      final c = _charBytes.getUint8(i);
+      final color = _colourGrid[i];
+      currentRow.add(GridCell(c, color));
       if ((i + 1) % COLS == 0) {
-        final s = sb.toString();
-        rows.add(s);
-        print("ROW[$s]");
-        sb.clear();
+        rows.add(currentRow);
+        // print("ROW[$currentRow]\n");
+        currentRow = [];
       }
     }
     return rows;
-  } 
+  }
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -130,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
   StreamSubscription? cmdStreamSubscription;
   SerialPort? port;
   final _grid = ScreenCharGrid();
-  final cmdBuilder = CmdBuilder();  
+  final cmdBuilder = CmdBuilder();
 
   void _sendCmd(int c) {
     List<int> data = [c];
@@ -154,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
             break;
           case ColourCmd():
             _grid.setColor(cmd.colour);
-            break;  
+            break;
         }
       });
     });
@@ -172,18 +171,18 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       port = SerialPort('/dev/ttyACM0');
       port!.openRead();
-    _listenPort();
+      _listenPort();
     } catch (_) {
       print("NO Picotracker connected!");
-    } 
+    }
   }
 
   Future<void> _listenPort() async {
-    SerialPortReader reader = SerialPortReader(port!, timeout: 10000);  
+    SerialPortReader reader = SerialPortReader(port!, timeout: 10000);
 
     subscription = reader.stream.listen((data) {
       //print('received:$data');
-      final byteBuf = data.buffer.asByteData();      
+      final byteBuf = data.buffer.asByteData();
       for (int i = 0; i < byteBuf.lengthInBytes; i++) {
         cmdBuilder.addByte(byteBuf.getUint8(i));
       }
@@ -243,7 +242,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: PicoScreen(
           _grid,
-          _grid.background,         
+          _grid.background,
         ),
       ),
     );
@@ -267,9 +266,9 @@ class PicoScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: grid
             .getRows()
-            .map((l) => ScreenCharRow(
-                  l.characters.toList(),
-                  grid.color,
+            .map((row) => ScreenCharRow(
+                  row,
+                  grid,
                 ))
             .toList(),
       ),
@@ -278,23 +277,22 @@ class PicoScreen extends StatelessWidget {
 }
 
 class ScreenCharRow extends StatelessWidget {
-  final List<String> rowChars;
-  final Color color;
+  final List<GridCell> rowChars;
+  final ScreenCharGrid grid;
 
-  const ScreenCharRow(this.rowChars, this.color,
-      {super.key});
+  const ScreenCharRow(this.rowChars, this.grid, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: rowChars
-          .map((c) => Text(
-                c,
+          .map((cell) => Text(
+                cell.char,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       height: 0.75,
                       letterSpacing: 4,
                       fontSize: 32,
-                      color: color,
+                      color: cell.color,
                     ),
               ))
           .toList(),
@@ -336,7 +334,7 @@ class CmdBuilder {
           break;
         case 0x03:
           _type = CommandType.COLOUR;
-          break;  
+          break;
         default:
           print("INVALID COMMAND TYPE!!!!! [$byte]");
       }
@@ -366,7 +364,7 @@ class CmdBuilder {
             print("BAD DRAW DATA:${cmd.x} ${cmd.y} [${cmd.char}]");
           } else {
             _commandStreamController.add(cmd);
-          }          
+          }
         }
         break;
       case CommandType.CLEAR:
@@ -420,4 +418,19 @@ class ColourCmd implements Command {
   final int colour;
 
   ColourCmd({required this.colour});
+}
+
+class GridCell {
+  final int _char;
+  final Color color;
+
+  // SPACE char instead of ascii 0
+  String get char => String.fromCharCode(_char != 0 ? _char : ASCII_SPACE);
+
+  GridCell(this._char, this.color);
+
+  @override
+  String toString() {
+    return "[$char] [$color]";
+  }
 }

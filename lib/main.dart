@@ -1,4 +1,4 @@
-// ignore_for_file: constant_identifier_names
+// ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
 import 'dart:async';
 
@@ -60,6 +60,25 @@ class ScreenCharGrid {
   Color _backgroundColor = Colors.black;
   List<Color> _colourGrid = List.filled(COLS * ROWS, Colors.black);
 
+  final List<Color> colorPalette = [
+    const Color(0xFF000000),
+    const Color(0xFF0049E5),
+    const Color(0xFF00B926),
+    const Color(0xFF00E371),
+    const Color(0xFF009CF3),
+    const Color(0xFF00A324),
+    const Color(0xFF00EC46),
+    const Color(0xFF00F70D),
+    const Color(0xFF00ffff),
+    const Color(0xFF001926),
+    const Color(0xFF002A49),
+    const Color(0xFF004443),
+    const Color(0xFF00A664),
+    const Color(0xFF0002B0),
+    const Color(0xFF00351E),
+    const Color(0xFF00B6FD)
+  ];
+
   ByteData get data => _charBytes;
 
   Color get color => _currentColour;
@@ -79,7 +98,8 @@ class ScreenCharGrid {
   }
 
   void setColor(int c) {
-    _currentColour = Color(c);
+    print("setcolor:$c");
+    _currentColour = colorPalette[c];
   }
 
   void setBackground(int c) {
@@ -132,6 +152,9 @@ class _MyHomePageState extends State<MyHomePage> {
           case ClearCmd():
             _grid.clear();
             break;
+          case ColourCmd():
+            _grid.setColor(cmd.colour);
+            break;  
         }
       });
     });
@@ -372,7 +395,7 @@ class CmdBuilder {
   }
 }
 
-abstract class Command {}
+sealed class Command {}
 
 class DrawCmd implements Command {
   final int char;

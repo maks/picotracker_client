@@ -46,8 +46,10 @@ class _MyHomePageState extends State<MyHomePage> {
   final cmdBuilder = CmdBuilder();
 
   void _sendCmd(int c) {
-    // List<int> data = [c];
-    // Uint8List bytes = Uint8List.fromList(data);
+    // Input to track not working properly and disabled for now
+    List<int> data = [c];
+    Uint8List bytes = Uint8List.fromList(data);
+    port!.write(bytes);
   }
 
   @override
@@ -83,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() => availablePorts = SerialPort.availablePorts);
     try {
       port = SerialPort('/dev/ttyACM0');
-      port!.openRead();
+      port!.openReadWrite();
       _listenPort();
     } catch (_) {}
   }
@@ -108,6 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
           // just keyDown
+          print("DOWN:" + event.logicalKey.keyLabel);
           if (event.logicalKey.keyId == 4294968068) {
             keymask = keymask | KEY_UP;
           }

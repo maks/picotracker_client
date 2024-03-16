@@ -1,11 +1,22 @@
-# picotracker_client
+# Picotracker Client
 
-Remote client UI over USB for picoTrackers
+Remote client UI over USB for picoTrackers built with Flutter.
+
+![app screenshot](docs/Screenshot1.png)]
 
 ## Getting Started
 
 Connect picotracker to usb port. On linux this will probably be `/dev/ttyACM0`
 You will need to switch between any 2 screens on the picotracker to "initialise" the display on the app.
+
+## Supported Platforms
+
+[X] Linux
+[ ] MacOS
+[ ] Web
+[ ] Android
+[ ] Windows
+
 
 ## TODO
 

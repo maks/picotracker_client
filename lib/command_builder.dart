@@ -30,25 +30,25 @@ class CmdBuilder {
       cmdStarted = true;
     } else if (_type == null && cmdStarted) {
       switch (byte) {
-        case 0x01:
+        case 0x32:
           _type = CommandType.DRAW;
           break;
-        case 0x02:
+        case 0x33:
           _type = CommandType.CLEAR;
           break;
-        case 0x03:
+        case 0x34:
           _type = CommandType.COLOUR;
           break;
         default:
           print("INVALID COMMAND TYPE!!!!! [$byte]");
       }
-    } else if (byte == 0xFE) {
-      _build();
-    } else {
+    }
+    else {
       if (cmdStarted) {
         _byteBuffer.add(byte);
       }
     }
+    _build();
   }
 
   // build command if we have all the bytes for it
@@ -59,8 +59,8 @@ class CmdBuilder {
           final cmd = DrawCmd(
             char: _byteBuffer[0],
             // x & y co-ords are 1 indexed to avoid sending null chars in the serial data
-            x: _byteBuffer[1] - 32,
-            y: _byteBuffer[2] - 32,
+            x: _byteBuffer[1] - ASCII_SPACE,
+            y: _byteBuffer[2] - ASCII_SPACE,
             invert: _byteBuffer[3] == 127,
           );
           _reset();
@@ -73,14 +73,14 @@ class CmdBuilder {
         break;
       case CommandType.CLEAR:
         if (_byteBuffer.length == _type!.paramCount) {
-          final cmd = ClearCmd(colour: _byteBuffer[0] - 1);
+          final cmd = ClearCmd(colour: _byteBuffer[0] - ASCII_SPACE);
           _commandStreamController.add(cmd);
           _reset();
         }
         break;
       case CommandType.COLOUR:
         if (_byteBuffer.length == _type!.paramCount) {
-          final cmd = ColourCmd(colour: _byteBuffer[0] - 1);
+          final cmd = ColourCmd(colour: _byteBuffer[0] - ASCII_SPACE);
           _commandStreamController.add(cmd);
           _reset();
         }

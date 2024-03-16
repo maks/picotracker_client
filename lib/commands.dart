@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 // ignore: constant_identifier_names
-const ASCII_SPACE = 32;
+const ASCII_SPACE_OFFSET = 32;
 
 sealed class Command {}
 
@@ -36,7 +36,8 @@ class GridCell {
   final bool invert;
 
   // SPACE char instead of ascii 0
-  String get char => String.fromCharCode(_char != 0 ? _char : ASCII_SPACE);
+  String get char =>
+      String.fromCharCode(_char != 0 ? _char : ASCII_SPACE_OFFSET);
 
   GridCell(this._char, this.color, this.invert);
 

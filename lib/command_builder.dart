@@ -59,8 +59,8 @@ class CmdBuilder {
           final cmd = DrawCmd(
             char: _byteBuffer[0],
             // x & y co-ords are 1 indexed to avoid sending null chars in the serial data
-            x: _byteBuffer[1] - ASCII_SPACE,
-            y: _byteBuffer[2] - ASCII_SPACE,
+            x: _byteBuffer[1] - ASCII_SPACE_OFFSET,
+            y: _byteBuffer[2] - ASCII_SPACE_OFFSET,
             invert: _byteBuffer[3] == 127,
           );
           _reset();
@@ -73,14 +73,14 @@ class CmdBuilder {
         break;
       case CommandType.CLEAR:
         if (_byteBuffer.length == _type!.paramCount) {
-          final cmd = ClearCmd(colour: _byteBuffer[0] - ASCII_SPACE);
+          final cmd = ClearCmd(colour: _byteBuffer[0] - ASCII_SPACE_OFFSET);
           _commandStreamController.add(cmd);
           _reset();
         }
         break;
       case CommandType.COLOUR:
         if (_byteBuffer.length == _type!.paramCount) {
-          final cmd = ColourCmd(colour: _byteBuffer[0] - ASCII_SPACE);
+          final cmd = ColourCmd(colour: _byteBuffer[0] - ASCII_SPACE_OFFSET);
           _commandStreamController.add(cmd);
           _reset();
         }

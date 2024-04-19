@@ -37,11 +37,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - fonts/
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+    - assets/fonts/
+    - assets/images/
 
   fonts:
     - family: VT323
       fonts:
-        - asset: fonts/VT323-Regular.ttf
+        - asset: assets/fonts/VT323-Regular.ttf

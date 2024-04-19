@@ -94,7 +94,7 @@ class _MainScreenState extends State<MainScreen> {
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
           // just keyDown
-          print("DOWN:${event.logicalKey.keyLabel}");
+          debugPrint("DOWN:${event.logicalKey.keyLabel}");
           if (event.logicalKey.keyId == 4294968068) {
             keymask = keymask | KEY_UP;
           }
@@ -132,15 +132,23 @@ class _MainScreenState extends State<MainScreen> {
         _sendCmd(keymask);
       },
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
-        ),
-        body: PicoScreen(
-          _grid,
-          _grid.background,
-        ),
-      ),
+          body: Stack(
+        children: [
+          Image.asset('assets/images/pico_background_gg.jpg'),
+          // hardcode position to align with background image given hardcoded window
+          // size in my_application.cc for Linux
+          Positioned(
+            left: 70,
+            top: 50,
+            width: 320 * 1.5,
+            height: 240 * 1.5,
+            child: PicoScreen(
+              _grid,
+              _grid.background,
+            ),
+          ),
+        ],
+      )),
     );
   }
 }

@@ -20,6 +20,9 @@ class PicoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h = MediaQuery.of(context).size.height;
+    final w = MediaQuery.of(context).size.width;
+    debugPrint("size:$h x $w");
     return Container(
       color: backgroundColor,
       child: Column(

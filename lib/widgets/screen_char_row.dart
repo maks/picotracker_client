@@ -20,7 +20,7 @@ class ScreenCharRow extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       height: 0.75,
                       letterSpacing: 4,
-                      fontSize: 32,
+                      fontSize: 20,
                       color: cell.invert ? grid.background : cell.color,
                       backgroundColor:
                           cell.invert ? cell.color : Colors.transparent,

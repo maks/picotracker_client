@@ -138,9 +138,9 @@ class _MainScreenState extends State<MainScreen> {
           // hardcode position to align with background image given hardcoded window
           // size in my_application.cc for Linux
           Positioned(
-            left: 86,
-            top: 75,
-            width: 320 * 1.4,
+            left: 70,
+            top: 70,
+            width: 320 * 1.5,
             height: 240 * 1.5,
             child: PicoScreen(
               _grid,

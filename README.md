@@ -2,7 +2,7 @@
 
 Remote client UI over USB for picoTrackers built with Flutter.
 
-![app screenshot](docs/Screenshot1.png)]
+![app screenshot](docs/Screenshot2.png)]
 
 ## Getting Started
 
@@ -21,13 +21,13 @@ You will need to switch between any 2 screens on the picotracker to "initialise"
 ## TODO
 
 - [X] display fg/bg colours
-- [ ] send current palette (custom colours) from picotracker to app
+- [ ] use palette (custom colours) from picotracker config.xml
 - [ ] implement notes blank *background* display of Song screen
 - [ ] reconnect port on picotracker reset (on load new project)
-- [ ] set initial window size
+- [X] set initial window size
 - [ ] show usb port connection status
 - [ ] app setting for USB port device name
 - [ ] switch to using a custompainter canvas and bitmap font like: https://github.com/dhepper/font8x8
 - [ ] send key events to picotracker 
-- [ ] package as app
+- [X] package as app
 - [ ] webapp version?

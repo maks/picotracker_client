@@ -134,13 +134,13 @@ class _MainScreenState extends State<MainScreen> {
       child: Scaffold(
           body: Stack(
         children: [
-          Image.asset('assets/images/pico_background_gg.jpg'),
+          Image.asset('assets/images/pico_background.jpg'),
           // hardcode position to align with background image given hardcoded window
           // size in my_application.cc for Linux
           Positioned(
-            left: 70,
-            top: 50,
-            width: 320 * 1.5,
+            left: 86,
+            top: 75,
+            width: 320 * 1.4,
             height: 240 * 1.5,
             child: PicoScreen(
               _grid,

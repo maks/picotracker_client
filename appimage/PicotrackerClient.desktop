@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Name=Picotracker Client
+Exec=picotracker_client %u
+Icon=picotracker_client
+Categories=Utility;

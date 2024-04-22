@@ -41,3 +41,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# AppImage package build dir
+picoTrackerClient.AppDir
+Picotracker_Client-x86_64.AppImage

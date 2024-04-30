@@ -40,7 +40,8 @@ flutter:
     - assets/fonts/
     - assets/images/
 
+# use square font from https://strlen.com/square/
   fonts:
-    - family: VT323
+    - family: Square
       fonts:
-        - asset: assets/fonts/VT323-Regular.ttf
+        - asset: assets/fonts/square.ttf

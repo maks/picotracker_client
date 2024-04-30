@@ -13,14 +13,17 @@ class ScreenCharRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // final s = rowChars.map((e) => e.char);
+    // print("$s\n");
     return Row(
       children: rowChars
           .map((cell) => Text(
                 cell.char,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      height: 0.75,
-                      letterSpacing: 4,
-                      fontSize: 20,
+                      height: 1,
+                      letterSpacing: 1,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
                       color: cell.invert ? grid.background : cell.color,
                       backgroundColor:
                           cell.invert ? cell.color : Colors.transparent,

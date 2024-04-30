@@ -1,15 +1,19 @@
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:picotracker_client/command_builder.dart';
 import 'package:picotracker_client/picotracker/screen_char_grid.dart';
+import 'package:udev/udev.dart';
 
 import 'commands.dart';
 import 'widgets/pico_screen.dart';
+
+const linuxUsbTTY = '/dev/ttyACM0';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key, required this.title});
@@ -29,6 +33,8 @@ class _MainScreenState extends State<MainScreen> {
   final _grid = ScreenCharGrid();
   final cmdBuilder = CmdBuilder();
 
+  StreamSubscription? usbUdevStream;
+
   void _sendCmd(int c) {
     // Input to track not working properly and disabled for now
     List<int> data = [c];
@@ -39,7 +45,9 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    initPorts();
+
+    initPort();
+    listenForUsbDevices();
 
     cmdBuilder.commands.listen((cmd) {
       setState(() {
@@ -63,18 +71,24 @@ class _MainScreenState extends State<MainScreen> {
     super.dispose();
     subscription?.cancel();
     cmdStreamSubscription?.cancel();
+    usbUdevStream?.cancel();
   }
 
-  void initPorts() {
+  void initPort() {
+    // print("Init Port");
     setState(() => availablePorts = SerialPort.availablePorts);
     try {
-      port = SerialPort('/dev/ttyACM0');
+      port = SerialPort(linuxUsbTTY);
       port!.openReadWrite();
       _listenPort();
     } catch (_) {}
   }
 
   Future<void> _listenPort() async {
+    if (port == null) {
+      print("null port can't listen");
+      return;
+    }
     SerialPortReader reader = SerialPortReader(port!, timeout: 10000);
 
     subscription = reader.stream.listen((data) {
@@ -85,6 +99,25 @@ class _MainScreenState extends State<MainScreen> {
       }
     });
   }
+
+  void listenForUsbDevices() {
+    final context = UdevContext();
+    final stream = context.monitorDevices(subsystems: ['usb']);
+    usbUdevStream = stream.listen((d) {
+      // print("USBevent: $d");
+      // d.properties.forEach((key, value) => print("$key:$value"));
+      final ttyFile = File(linuxUsbTTY);
+      if (ttyFile.existsSync() && port == null) {
+        // print("found port file, so now do init");
+        initPort();
+      } else {
+        // print("no more port, do close");
+        port?.close();
+        port = null;
+      }
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {

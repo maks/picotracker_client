@@ -41,8 +41,12 @@ flutter:
     - assets/fonts/
     - assets/images/
 
-# use square font from https://strlen.com/square/
+# square font from https://strlen.com/square/
+# beeb font from https://fontstruct.com/fontstructions/show/63444/beeb
   fonts:
     - family: Square
       fonts:
         - asset: assets/fonts/square.ttf
+    - family: Beeb
+      fonts:
+        - asset: assets/fonts/beeb.ttf

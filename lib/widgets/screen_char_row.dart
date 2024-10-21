@@ -16,12 +16,10 @@ class ScreenCharRow extends StatelessWidget {
     return Row(
       children: rowChars
           .map((cell) => Text(
-                cell.char == " " ? "  " : cell.char,
+                cell.char,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      height: 1.1,
-                      letterSpacing: 1.2,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.2,
+                      fontSize: 13,
                       color: cell.invert ? grid.background : cell.color,
                       backgroundColor:
                           cell.invert ? cell.color : Colors.transparent,

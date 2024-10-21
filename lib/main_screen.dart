@@ -89,10 +89,9 @@ class _MainScreenState extends State<MainScreen> {
       print("null port can't listen");
       return;
     }
-    SerialPortReader reader = SerialPortReader(port!, timeout: 10000);
+    SerialPortReader reader = SerialPortReader(port!, timeout: 20);
 
     subscription = reader.stream.listen((data) {
-      //print('received:$data');
       final byteBuf = data.buffer.asByteData();
       for (int i = 0; i < byteBuf.lengthInBytes; i++) {
         cmdBuilder.addByte(byteBuf.getUint8(i));
@@ -117,7 +116,6 @@ class _MainScreenState extends State<MainScreen> {
       }
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -168,16 +166,16 @@ class _MainScreenState extends State<MainScreen> {
           body: Stack(
         children: [
           Image.asset(
-            'assets/images/pico_background.jpg',
+            'assets/images/pico_background2.jpg',
             height: 600,
           ),
           // hardcode position to align with background image given hardcoded window
           // size in my_application.cc for Linux
           Positioned(
-            left: 98,
+            left: 85,
             top: 86,
-            width: 320 * 1.65,
-            height: 240 * 1.75,
+            width: 320 * 1.69,
+            height: 240 * 1.7,
             child: PicoScreen(
               _grid,
               _grid.background,

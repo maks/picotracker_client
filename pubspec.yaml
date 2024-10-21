@@ -41,12 +41,11 @@ flutter:
     - assets/fonts/
     - assets/images/
 
-# square font from https://strlen.com/square/
-# beeb font from https://fontstruct.com/fontstructions/show/63444/beeb
+# Orbiter font from: https://damieng.com/typography/zx-origins/orbiter/
   fonts:
-    - family: Square
+    - family: Orbiter
       fonts:
-        - asset: assets/fonts/square.ttf
-    - family: Beeb
+        - asset: assets/fonts/Orbiter.ttf
+    - family: Quirky PC
       fonts:
-        - asset: assets/fonts/beeb.ttf
+        - asset: assets/fonts/QuirkyPC.ttf

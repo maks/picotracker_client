@@ -41,8 +41,11 @@ flutter:
     - assets/fonts/
     - assets/images/
 
-# use square font from https://strlen.com/square/
+# Orbiter font from: https://damieng.com/typography/zx-origins/orbiter/
   fonts:
-    - family: Square
+    - family: Orbiter
       fonts:
-        - asset: assets/fonts/square.ttf
+        - asset: assets/fonts/Orbiter.ttf
+    - family: Quirky PC
+      fonts:
+        - asset: assets/fonts/QuirkyPC.ttf

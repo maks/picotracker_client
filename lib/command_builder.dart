@@ -24,7 +24,7 @@ class CmdBuilder {
   void addByte(int byte) {
     if (byte == 0xFD) {
       if (cmdStarted) {
-        //print("INCOMPLETE CMD:[$_type] $_byteBuffer");
+        print("INCOMPLETE CMD:[$_type] $_byteBuffer");
       }
       _reset();
       cmdStarted = true;

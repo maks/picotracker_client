@@ -13,7 +13,7 @@ import 'package:udev/udev.dart';
 import 'commands.dart';
 import 'widgets/pico_screen.dart';
 
-const linuxUsbTTY = '/dev/ttyACM0';
+const linuxUsbTTY = '/dev/ttyACM1';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key, required this.title});

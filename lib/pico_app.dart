@@ -13,7 +13,7 @@ class PicoApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
-        fontFamily: "Orbiter",
+        fontFamily: "Hourglass",
       ),
       home: const MainScreen(title: 'picoTracker'),
     );

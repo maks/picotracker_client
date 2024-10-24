@@ -1,16 +1,16 @@
 name: picotracker_client
 description: "A new Flutter project."
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  
+
   flutter_libserialport: ^0.4.0
   udev: ^0.0.3
 
@@ -30,7 +30,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -41,11 +40,11 @@ flutter:
     - assets/fonts/
     - assets/images/
 
-# Orbiter font from: https://damieng.com/typography/zx-origins/orbiter/
+  # Hourglass and You Squared fonts from: https://damieng.com/typography/zx-origins/orbiter/
   fonts:
-    - family: Orbiter
+    - family: Hourglass
       fonts:
-        - asset: assets/fonts/Orbiter.ttf
-    - family: Quirky PC
+        - asset: assets/fonts/Hourglass.ttf
+    - family: You Squared
       fonts:
-        - asset: assets/fonts/QuirkyPC.ttf
+        - asset: assets/fonts/YouSquared.ttf

@@ -1,19 +1,22 @@
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:picotracker_client/command_builder.dart';
 import 'package:picotracker_client/picotracker/screen_char_grid.dart';
-import 'package:udev/udev.dart';
 
 import 'commands.dart';
 import 'widgets/pico_screen.dart';
 
-const linuxUsbTTY = '/dev/ttyACM1';
+import 'dart:js_interop';
+
+@JS()
+external set dartSerialDataCallback(JSFunction value);
+
+@JS()
+external JSPromise initSerial();
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key, required this.title});
@@ -29,25 +32,17 @@ class _MainScreenState extends State<MainScreen> {
   int keymask = 0;
   StreamSubscription? subscription;
   StreamSubscription? cmdStreamSubscription;
-  SerialPort? port;
+  // SerialPort? port;
   final _grid = ScreenCharGrid();
   final cmdBuilder = CmdBuilder();
 
   StreamSubscription? usbUdevStream;
 
-  void _sendCmd(int c) {
-    // Input to track not working properly and disabled for now
-    List<int> data = [c];
-    Uint8List bytes = Uint8List.fromList(data);
-    port!.write(bytes);
-  }
-
   @override
   void initState() {
     super.initState();
 
-    initPort();
-    listenForUsbDevices();
+    dartSerialDataCallback = onSerialData.toJS;
 
     cmdBuilder.commands.listen((cmd) {
       setState(() {
@@ -74,47 +69,13 @@ class _MainScreenState extends State<MainScreen> {
     usbUdevStream?.cancel();
   }
 
-  void initPort() {
-    // print("Init Port");
-    setState(() => availablePorts = SerialPort.availablePorts);
-    try {
-      port = SerialPort(linuxUsbTTY);
-      port!.openReadWrite();
-      _listenPort();
-    } catch (_) {}
-  }
+  void onSerialData(JSUint8Array data) {
+    // print("$data");
 
-  Future<void> _listenPort() async {
-    if (port == null) {
-      print("null port can't listen");
-      return;
+    final byteBuf = data.toDart;
+    for (int i = 0; i < byteBuf.lengthInBytes; i++) {
+      cmdBuilder.addByte(byteBuf[i]);
     }
-    SerialPortReader reader = SerialPortReader(port!, timeout: 20);
-
-    subscription = reader.stream.listen((data) {
-      final byteBuf = data.buffer.asByteData();
-      for (int i = 0; i < byteBuf.lengthInBytes; i++) {
-        cmdBuilder.addByte(byteBuf.getUint8(i));
-      }
-    });
-  }
-
-  void listenForUsbDevices() {
-    final context = UdevContext();
-    final stream = context.monitorDevices(subsystems: ['usb']);
-    usbUdevStream = stream.listen((d) {
-      // print("USBevent: $d");
-      // d.properties.forEach((key, value) => print("$key:$value"));
-      final ttyFile = File(linuxUsbTTY);
-      if (ttyFile.existsSync() && port == null) {
-        // print("found port file, so now do init");
-        initPort();
-      } else {
-        // print("no more port, do close");
-        port?.close();
-        port = null;
-      }
-    });
   }
 
   @override
@@ -160,29 +121,35 @@ class _MainScreenState extends State<MainScreen> {
             keymask = keymask ^ KEY_L;
           }
         }
-        _sendCmd(keymask);
+        // _sendCmd(keymask);
       },
       child: Scaffold(
+          floatingActionButton: MaterialButton(
+            child: const Text("choose serial port"),
+            onPressed: () {
+              initSerial();
+            },
+          ),
           body: Stack(
-        children: [
-          Image.asset(
-            'assets/images/pico_background2.jpg',
-            height: 600,
-          ),
-          // hardcode position to align with background image given hardcoded window
-          // size in my_application.cc for Linux
-          Positioned(
-            left: 85,
-            top: 86,
-            width: 320 * 1.69,
-            height: 240 * 1.7,
-            child: PicoScreen(
-              _grid,
-              _grid.background,
-            ),
-          ),
-        ],
-      )),
+            children: [
+              Image.asset(
+                'assets/images/pico_background2.jpg',
+                height: 600,
+              ),
+              // hardcode position to align with background image given hardcoded window
+              // size in my_application.cc for Linux
+              Positioned(
+                left: 85,
+                top: 86,
+                width: 320 * 1.69,
+                height: 240 * 1.7,
+                child: PicoScreen(
+                  _grid,
+                  _grid.background,
+                ),
+              ),
+            ],
+          )),
     );
   }
 }

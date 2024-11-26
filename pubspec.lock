@@ -41,14 +41,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
-  dylib:
-    dependency: transitive
-    description:
-      name: dylib
-      sha256: bf609b3eb6492a3309b3d1dbe8f83a4031de5535dd7686be33487051cc760bb0
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.3"
   fake_async:
     dependency: transitive
     description:
@@ -57,27 +49,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.1"
-  ffi:
-    dependency: transitive
-    description:
-      name: ffi
-      sha256: "16ed7b077ef01ad6170a3d0c57caa4a112a38d7a2ed5602e0aca9ca6f3d98da6"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.3"
   flutter:
     dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_libserialport:
-    dependency: "direct main"
-    description:
-      name: flutter_libserialport
-      sha256: "20c320dcde8592a16f9badc0cacad61b1fb283dbec647b6ebfc1020f8274c67b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -115,14 +91,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
-  libserialport:
-    dependency: transitive
-    description:
-      name: libserialport
-      sha256: "392e1592def65282429832ec66fa25e9e163d3b37716b97691482e2406720727"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.0+1"
   lints:
     dependency: transitive
     description:
@@ -163,14 +131,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.0"
-  platform:
-    dependency: transitive
-    description:
-      name: platform
-      sha256: "9b71283fc13df574056616011fb138fd3b793ea47cc509c189a6c3fa5f8a1a65"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.5"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -192,14 +152,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.1"
-  stdlibc:
-    dependency: transitive
-    description:
-      name: stdlibc
-      sha256: "953a7bfbd94ce17485cfb3721f1731e5b8be91b5b2bd46355d7c34a7ad96a6ba"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.4"
   stream_channel:
     dependency: transitive
     description:
@@ -232,14 +184,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.2"
-  udev:
-    dependency: "direct main"
-    description:
-      name: udev
-      sha256: cd897966c5331476a15c44b79f9143e6985a416ea6fdf38b5cc6a4fb3d89f947
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.3"
   vector_math:
     dependency: transitive
     description:

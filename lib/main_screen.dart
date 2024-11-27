@@ -9,14 +9,8 @@ import 'package:picotracker_client/picotracker/screen_char_grid.dart';
 
 import 'commands.dart';
 import 'widgets/pico_screen.dart';
-
+import 'package:webserial/webserial.dart';
 import 'dart:js_interop';
-
-@JS()
-external set dartSerialDataCallback(JSFunction value);
-
-@JS()
-external JSPromise initSerial();
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key, required this.title});
@@ -42,8 +36,6 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
 
-    dartSerialDataCallback = onSerialData.toJS;
-
     cmdBuilder.commands.listen((cmd) {
       setState(() {
         switch (cmd) {
@@ -67,6 +59,51 @@ class _MainScreenState extends State<MainScreen> {
     subscription?.cancel();
     cmdStreamSubscription?.cancel();
     usbUdevStream?.cancel();
+  }
+
+  void chooseSerialDevice() async {
+    late final JSSerialPort? port;
+    try {
+      port = await requestWebSerialPort();
+      print("got serial port: $port");
+    } catch (e) {
+      print(e);
+      return;
+    }
+
+    if (port?.readable == null) {
+      // Open the serial port.
+      await port
+          ?.open(
+            JSSerialOptions(
+              baudRate: 115200,
+              dataBits: 8,
+              stopBits: 1,
+              parity: "none",
+              bufferSize: 64,
+              flowControl: "none",
+            ),
+          )
+          .toDart;
+
+      print("port opened: ${port?.readable}");
+    } else {
+      print("port already opened: ${port?.readable}");
+    }
+    // Listen to data coming from the serial device.
+    final reader = port?.readable?.getReader() as ReadableStreamDefaultReader;
+
+    while (true) {
+      final result = await reader.read().toDart;
+      if (result.done) {
+        // Allow the serial port to be closed later.
+        reader.releaseLock();
+        break;
+      } else {
+        // value is a Uint8Array.
+        onSerialData(result.value as JSUint8Array);
+      }
+    }
   }
 
   void onSerialData(JSUint8Array data) {
@@ -127,7 +164,7 @@ class _MainScreenState extends State<MainScreen> {
           floatingActionButton: MaterialButton(
             child: const Text("choose serial port"),
             onPressed: () {
-              initSerial();
+              chooseSerialDevice();
             },
           ),
           body: Stack(

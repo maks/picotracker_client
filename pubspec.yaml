@@ -10,8 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   flutter_libserialport: ^0.4.0
+  webserial: ^1.0.0
   udev: ^0.0.3
 
 dev_dependencies:

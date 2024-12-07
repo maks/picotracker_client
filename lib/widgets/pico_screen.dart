@@ -19,18 +19,20 @@ class PicoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 460,
+      height: 754,
+      width: 904,
       decoration: const BoxDecoration(
         image: DecorationImage(
           image: AssetImage(
-            'assets/images/pico_background2small.jpg',
+            'assets/images/bezel-brd-2.png',
           ),
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 62, horizontal: 24),
+        padding:
+            const EdgeInsets.only(top: 100, bottom: 98, left: 60, right: 75),
         child: Container(
-          height: 320,
+          height: 320 * 2,
           width: 240 * 2,
           color: Colors.black,
           child: Column(

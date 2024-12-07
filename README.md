@@ -4,6 +4,8 @@ Remote client UI over USB for picoTrackers built with Flutter.
 
 ![app screenshot](docs/Screenshot2.png)]
 
+The webapp [is available here](https://xiphonics.github.io/picotracker_client/).
+
 ## Getting Started
 
 Connect picotracker to usb port. On linux this will probably be `/dev/ttyACM0`
@@ -11,23 +13,18 @@ You will need to switch between any 2 screens on the picotracker to "initialise"
 
 ## Supported Platforms
 
-- [X] Linux
-- [ ] MacOS
-- [ ] Web
-- [ ] Android
-- [ ] Windows
+- [X] Web
+- [X] Linux (for dev/debugging only)
 
 
 ## TODO
 
 - [X] display fg/bg colours
-- [ ] use palette (custom colours) from picotracker config.xml
-- [ ] implement notes blank *background* display of Song screen
+- [X] webapp version
+- [ ] use palette (custom colours) send from picotracker ([once supported by remoteui protocol](https://github.com/xiphonics/picoTracker/issues/263))
+- [X] implement notes blank *background* display of Song screen
 - [ ] reconnect port on picotracker reset (on load new project)
-- [X] set initial window size
+- [ ] set initial window size
 - [ ] show usb port connection status
-- [ ] app setting for USB port device name
-- [ ] switch to using a custompainter canvas and bitmap font like: https://github.com/dhepper/font8x8
-- [ ] send key events to picotracker 
-- [X] package as app
-- [ ] webapp version?
+- [X] app setting for USB port device name
+- [ ] request refresh on connect ([once supported by remoteui protocol](https://github.com/xiphonics/picoTracker/issues/263))

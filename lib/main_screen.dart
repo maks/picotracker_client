@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:picotracker_client/command_builder.dart';
 import 'package:picotracker_client/picotracker/screen_char_grid.dart';
 import 'package:picotracker_client/serialportinterface.dart';
@@ -63,68 +62,20 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return KeyboardListener(
-      autofocus: true,
-      focusNode: FocusNode(),
-      onKeyEvent: (event) {
-        if (event is KeyDownEvent) {
-          // just keyDown
-          debugPrint("DOWN:${event.logicalKey.keyLabel}");
-          if (event.logicalKey.keyId == 4294968068) {
-            keymask = keymask | KEY_UP;
-          }
-          if (event.logicalKey.keyId == 4294968065) {
-            keymask = keymask | KEY_DOWN;
-          }
-          if (event.logicalKey.keyId == 4294968066) {
-            keymask = keymask | KEY_LEFT;
-          }
-          if (event.logicalKey.keyId == 4294968067) {
-            keymask = keymask | KEY_RIGHT;
-          }
-          if (event.logicalKey.keyId == 8589934850) {
-            keymask = keymask | KEY_L;
-          }
-        }
-        if (event is KeyUpEvent) {
-          //print("UP:" + event.logicalKey.keyLabel);
-          if (event.logicalKey.keyId == 4294968068) {
-            keymask = keymask ^ KEY_UP;
-          }
-          if (event.logicalKey.keyId == 4294968065) {
-            keymask = keymask ^ KEY_DOWN;
-          }
-          if (event.logicalKey.keyId == 4294968066) {
-            keymask = keymask ^ KEY_LEFT;
-          }
-          if (event.logicalKey.keyId == 4294968067) {
-            keymask = keymask ^ KEY_RIGHT;
-          }
-          if (event.logicalKey.keyId == 8589934850) {
-            keymask = keymask ^ KEY_L;
-          }
-        }
-        // _sendCmd(keymask);
-      },
-      child: Scaffold(
-          backgroundColor: Colors.black,
-          floatingActionButton: MaterialButton(
-            child: const Text(
-              "choose serial port",
-              style: TextStyle(color: Colors.amberAccent),
-            ),
-            onPressed: () {
-              serialHandler.chooseSerialDevice();
-            },
+    return Scaffold(
+        backgroundColor: Colors.black,
+        floatingActionButton: MaterialButton(
+          child: const Text(
+            "choose serial port",
+            style: TextStyle(color: Colors.amberAccent),
           ),
-          body: Stack(
-            children: [
-              PicoScreen(
-                _grid,
-                _grid.background,
-              ),
-            ],
-          )),
-    );
+          onPressed: () {
+            serialHandler.chooseSerialDevice();
+          },
+        ),
+        body: PicoScreen(
+          _grid,
+          _grid.background,
+        ));
   }
 }

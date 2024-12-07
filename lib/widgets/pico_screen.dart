@@ -23,7 +23,7 @@ class PicoScreen extends StatelessWidget {
       decoration: const BoxDecoration(
         image: DecorationImage(
           image: AssetImage(
-            'assets/images/pico_background2.jpg',
+            'assets/images/pico_background2small.jpg',
           ),
         ),
       ),

@@ -107,29 +107,21 @@ class _MainScreenState extends State<MainScreen> {
         // _sendCmd(keymask);
       },
       child: Scaffold(
+          backgroundColor: Colors.black,
           floatingActionButton: MaterialButton(
-            child: const Text("choose serial port"),
+            child: const Text(
+              "choose serial port",
+              style: TextStyle(color: Colors.amberAccent),
+            ),
             onPressed: () {
               serialHandler.chooseSerialDevice();
             },
           ),
           body: Stack(
             children: [
-              Image.asset(
-                'assets/images/pico_background2.jpg',
-                height: 600,
-              ),
-              // hardcode position to align with background image given hardcoded window
-              // size in my_application.cc for Linux
-              Positioned(
-                left: 85,
-                top: 86,
-                width: 320 * 1.69,
-                height: 240 * 1.7,
-                child: PicoScreen(
-                  _grid,
-                  _grid.background,
-                ),
+              PicoScreen(
+                _grid,
+                _grid.background,
               ),
             ],
           )),

@@ -23,7 +23,7 @@ class ScreenCharRow extends StatelessWidget {
           isInvertedSpaceChar ? "\u2588" : cell.char,
           textAlign: TextAlign.right,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                height: 1.2,
+                height: 1,
                 letterSpacing: 1,
                 fontSize: 14,
                 color: isInvertedSpaceChar

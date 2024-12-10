@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
       - name: Build web app
-        run: flutter build web --base-href /picotracker_client/
+        run: flutter build web
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v2
         with:

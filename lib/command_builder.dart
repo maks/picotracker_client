@@ -1,13 +1,12 @@
 // ignore_for_file: constant_identifier_names, avoid_print
 
 import 'dart:async';
-
 import 'commands.dart';
 
 enum CommandType {
   DRAW(4),
-  CLEAR(1),
-  COLOUR(1);
+  CLEAR(3),
+  COLOUR(3);
 
   const CommandType(this.paramCount);
   final int paramCount;
@@ -42,8 +41,7 @@ class CmdBuilder {
         default:
           print("INVALID COMMAND TYPE!!!!! [$byte]");
       }
-    }
-    else {
+    } else {
       if (cmdStarted) {
         _byteBuffer.add(byte);
       }
@@ -73,14 +71,20 @@ class CmdBuilder {
         break;
       case CommandType.CLEAR:
         if (_byteBuffer.length == _type!.paramCount) {
-          final cmd = ClearCmd(colour: _byteBuffer[0] - ASCII_SPACE_OFFSET);
+          const cmd = ClearCmd();
           _commandStreamController.add(cmd);
           _reset();
         }
         break;
       case CommandType.COLOUR:
         if (_byteBuffer.length == _type!.paramCount) {
-          final cmd = ColourCmd(colour: _byteBuffer[0] - ASCII_SPACE_OFFSET);
+          final cmd = ColourCmd(
+            // convert from 565 RGB to 888 RGB
+            // ref: https://stackoverflow.com/a/9069480/85472
+            r: (_byteBuffer[0] * 527 + 23) >> 5, // Red component
+            g: (_byteBuffer[1] * 259 + 33) >> 6, // Green component
+            b: (_byteBuffer[2] * 527 + 23) >> 5, // Blue component
+          );
           _commandStreamController.add(cmd);
           _reset();
         }

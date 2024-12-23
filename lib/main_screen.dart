@@ -45,7 +45,7 @@ class _MainScreenState extends State<MainScreen> {
             _grid.clear();
             break;
           case ColourCmd():
-            _grid.setColor(cmd.colour);
+            _grid.setColor(cmd.r, cmd.g, cmd.b);
             break;
         }
       });

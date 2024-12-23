@@ -6,7 +6,7 @@ class PicoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(
+    debugPrint(
         "H: ${MediaQuery.of(context).size.height} W: ${MediaQuery.of(context).size.width}");
     return MaterialApp(
       title: 'picoTracker',

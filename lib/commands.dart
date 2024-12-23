@@ -11,23 +11,28 @@ class DrawCmd implements Command {
   final int y;
   final bool invert;
 
-  DrawCmd(
-      {required this.char,
-      required this.x,
-      required this.y,
-      required this.invert});
+  DrawCmd({
+    required this.char,
+    required this.x,
+    required this.y,
+    required this.invert,
+  });
 }
 
 class ClearCmd implements Command {
-  final int colour;
-
-  ClearCmd({required this.colour});
+  const ClearCmd();
 }
 
 class ColourCmd implements Command {
-  final int colour;
+  final int r; // Red component
+  final int g; // Green component
+  final int b; // Blue component
 
-  ColourCmd({required this.colour});
+  ColourCmd({
+    required this.r,
+    required this.g,
+    required this.b,
+  });
 }
 
 class GridCell {

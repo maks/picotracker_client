@@ -1,6 +1,8 @@
 // ignore_for_file: constant_identifier_names, avoid_print
 
 import 'dart:async';
+import 'package:picotracker_client/pico_app.dart';
+
 import 'commands.dart';
 
 const REMOTE_COMMAND_MARKER = 0xFE;
@@ -91,7 +93,7 @@ class CmdBuilder {
           _commandStreamController.add(cmd);
           _reset();
         } else {
-          print("BAD CLEAR DATA:${_byteBuffer}");
+          print("BAD CLEAR DATA:$_byteBuffer");
         }
         break;
       case CommandType.SET_COLOUR:
@@ -108,7 +110,19 @@ class CmdBuilder {
         }
         break;
       case CommandType.SET_FONT:
-      // TODO: Handle this case.
+        if (_byteBuffer.length != 1) {
+          print("BAD FONT DATA:$_byteBuffer");
+          break;
+        }
+        final index = _byteBuffer[0] - ASCII_SPACE_OFFSET;
+        if (index < PtFont.values.length) {
+          final cmd = FontCmd(index: index);
+          _commandStreamController.add(cmd);
+          _reset();
+        } else {
+          print("BAD FONT INDEX:$index");
+        }
+        break;
       case null:
         break;
     }

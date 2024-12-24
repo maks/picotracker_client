@@ -1,6 +1,7 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:ui';
 
-// ignore: constant_identifier_names
 const REMOTE_COMMAND_MARKER = 0x01;
 const ASCII_SPACE_OFFSET = 0xF;
 const INVERT_ON = 0x7F;
@@ -41,6 +42,13 @@ class ColourCmd implements Command {
     required this.r,
     required this.g,
     required this.b,
+  });
+}
+
+class FontCmd implements Command {
+  final int index;
+  FontCmd({
+    required this.index,
   });
 }
 

@@ -8,6 +8,7 @@ import 'package:picotracker_client/picotracker/screen_char_grid.dart';
 import 'package:picotracker_client/serialportinterface.dart';
 
 import 'commands.dart';
+import 'pico_app.dart';
 import 'widgets/pico_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -46,6 +47,9 @@ class _MainScreenState extends State<MainScreen> {
             break;
           case ColourCmd():
             _grid.setColor(cmd.r, cmd.g, cmd.b);
+            break;
+          case FontCmd():
+            fontNotifier.value = PtFont.values[cmd.index];
             break;
         }
       });

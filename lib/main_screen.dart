@@ -66,6 +66,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("connected: ${serialHandler.isConnected}");
     return Scaffold(
         backgroundColor: Colors.black,
         body: Stack(
@@ -74,24 +75,28 @@ class _MainScreenState extends State<MainScreen> {
               _grid,
               _grid.background,
             ),
-            Positioned(
-              left: MediaQuery.of(context).size.width / 4,
-              top: MediaQuery.of(context).size.height / 4,
-              child: MaterialButton(
-                color: const Color.fromARGB(255, 35, 13, 73),
-                child: const Padding(
-                  padding: EdgeInsets.all(38.0),
-                  child: Text(
-                    "Connect",
-                    style: TextStyle(
-                      color: Colors.amberAccent,
-                      fontSize: 50,
+            Visibility(
+              visible: !serialHandler.isConnected(),
+              child: Positioned(
+                left: MediaQuery.of(context).size.width / 4,
+                top: MediaQuery.of(context).size.height / 4,
+                child: MaterialButton(
+                  color: const Color.fromARGB(255, 35, 13, 73),
+                  child: const Padding(
+                    padding: EdgeInsets.all(38.0),
+                    child: Text(
+                      "Connect",
+                      style: TextStyle(
+                        color: Colors.amberAccent,
+                        fontSize: 50,
+                      ),
                     ),
                   ),
+                  onPressed: () {
+                    serialHandler.chooseSerialDevice();
+                    setState(() {});
+                  },
                 ),
-                onPressed: () {
-                  serialHandler.chooseSerialDevice();
-                },
               ),
             ),
           ],

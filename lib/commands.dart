@@ -1,7 +1,9 @@
 import 'dart:ui';
 
 // ignore: constant_identifier_names
-const ASCII_SPACE_OFFSET = 32;
+const REMOTE_COMMAND_MARKER = 0x01;
+const ASCII_SPACE_OFFSET = 0xF;
+const INVERT_ON = 0x7F;
 
 sealed class Command {}
 
@@ -20,7 +22,14 @@ class DrawCmd implements Command {
 }
 
 class ClearCmd implements Command {
-  const ClearCmd();
+  final int r; // Red component
+  final int g; // Green component
+  final int b; // Blue component
+  const ClearCmd({
+    required this.r,
+    required this.g,
+    required this.b,
+  });
 }
 
 class ColourCmd implements Command {
